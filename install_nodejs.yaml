@@ -1,0 +1,27 @@
+---
+- hosts: nodejs
+  tasks:
+  - name: 创建目录
+    shell: mkdir -p /usr/local/node
+  - name: 增加权限
+    shell: chmod 777 /usr/local/node
+  - name: copy nodej remote hosts
+    copy: src=/home/packages/node-v10.14.1-linux-x64.tar.xz dest=/usr/local/src/
+  - name: Decompressing files
+    shell: chdir=/usr/local/src/ tar -xvf node-v10.14.1-linux-x64.tar.xz -C /usr/local/node/
+  - name: java_profile config
+    shell: /bin/echo {{ item }} >> /etc/profile
+    with_items:
+        - export NODE=/usr/local/node/node-v10.14.1-linux-x64
+        - export PATH=\$NODE/bin:\$PATH
+  - name: take effect
+    shell: source /etc/profile
+
+  - name: 删除tag包
+    file:
+      path: /usr/local/src/node-v10.14.1-linux-x64.tar.xz
+      state: absent
+  - name:  删除配置文件
+    file:  
+      path:  /usr/local/src/node-v10.14.1-linux-x64
+      state: absent

@@ -1,0 +1,23 @@
+---
+- hosts: ss
+  user: xiaoxin
+  tasks:
+  - name: copy jdk remote hosts
+    copy: src=/home/packages/jdk-8u151-linux-x64.tar.gz dest=/usr/local/src/
+  - name: Decompressing files
+    shell: chdir=/usr/local/src/ tar zxf jdk-8u151-linux-x64.tar.gz
+  - name: create links
+    file: src=/usr/local/src/jdk1.8.0_151 dest=/usr/local/java state=link
+  - name: java_profile config
+    shell: /bin/echo {{ item }} >> /etc/profile
+    with_items:
+        - export JAVA_HOME=/usr/local/java
+        - export JRE_HOME=/usr/local/java/jre
+        - export CLASSPATH=.:\$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:\$JRE_HOME/lib:\$CLASSPATH
+        - export PATH=\$JAVA_HOME/bin:\$PATH
+  - name: take effect
+    shell: source /etc/profile
+  - name: 删除tag包
+    file:
+      path: /usr/local/src/jdk-8u151-linux-x64.tar.gz
+      state: absent 

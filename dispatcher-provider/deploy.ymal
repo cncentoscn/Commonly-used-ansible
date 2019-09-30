@@ -1,0 +1,49 @@
+---
+- hosts: app
+  tasks:
+  - name: Stop the service
+    shell: /home/xiaoxin/app/dispatch-starter-1.0-SNAPSHOT/bin/server.sh stop
+  - name:  Please wait while the service is closed.
+    shell: sleep 15
+  - name: Create the code pull directory
+    file:
+      path: /home/xiaoxin/app/develop
+      state: directory
+      mode: '0755'
+  - name:  Except target source
+    file:
+      path: /home/xiaoxin/app/dispatch-starter-1.0-SNAPSHOT/lib
+      state: absent
+  - name:  Delete target source
+    file:
+      path: /home/xiaoxin/app/dispatch-starter-1.0-SNAPSHOT/conf
+      state: absent
+  - name: Delete the log three days ago
+    shell: find /home/xiaoxin/app/develop/ -mtime +3  -delete
+  - name:  Copy the package configuration file
+    copy: src=/var/lib/jenkins/workspace/dispatch-provider/dispatch-starter/target/dispatch-starter-1.0-SNAPSHOT-assembly.tar.gz dest=/home/xiaoxin/app/develop
+  - name: A mobile application
+    shell: scp /home/xiaoxin/app/develop/dispatch-starter-1.0-SNAPSHOT-assembly.tar.gz /home/xiaoxin/app/
+  - name: Push register-center-web.tar.gz
+    unarchive: src=/home/xiaoxin/app/dispatch-starter-1.0-SNAPSHOT-assembly.tar.gz dest=/home/xiaoxin/app copy=no
+  - name: Remove the tag package
+    file:
+      path: /home/xiaoxin/app/dispatch-starter-1.0-SNAPSHOT-assembly.tar.gz
+      state: absent
+  - name: Rename the new backup
+    shell: mv /home/xiaoxin/app/develop/dispatch-starter-1.0-SNAPSHOT-assembly.tar.gz /home/xiaoxin/app/develop/dispatch-starter-1.0-SNAPSHOT-assembly$(date +%Y%m%d%H%M%S).tar.gz
+  - name: Ansible delete file example
+    file:
+      path: /home/xiaoxin/app/develop/dispatch-starter-1.0-SNAPSHOT-assembly.tar.gz
+      state: absent
+#  - name: Copy start parameter
+#    copy: src=/home/xiaoxin/catalina.sh dest=/home/xiaoxin/app/dispatch-starter-1.0-SNAPSHOT-assembly/bin/
+  - name: Start the service
+    shell:  /home/xiaoxin/app/dispatch-starter-1.0-SNAPSHOT/bin/server.sh start
+  - name: Please wait while the service starts.
+    shell: sleep 25
+  - name: Check whether the port is open
+    shell: netstat -tlpn | grep 8810
+    register: port
+  - debug:
+      msg: "{{ port.stdout }}"

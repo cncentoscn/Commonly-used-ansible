@@ -1,0 +1,33 @@
+- hosts: ss
+  remote_user: root
+  vars:                          # 执行时可以通过-e指定变量，默认为sdb
+    disk: /dev/vdb
+    diskfullpath: /dev/vdb1
+    mountDir: /home
+  tasks:                         # 创建分区，把变量传给disk.sh
+    - name: New Disk Partition
+      script: "/home/xiaoxin/ansible/disk/disk.sh {{ disk }}"
+      become: yes
+      become_user: root
+      become_method: sudo
+
+    - name: New Disk Format(xfs) # 格式化为xfs
+      filesystem: fstype=xfs dev="{{ diskfullpath }}" force=yes
+      become: yes
+      become_user: root
+      become_method: sudo
+      notify: ADD TO fstab
+
+    - name: New Disk Mount       # 挂载到开头指定的变量，默认/home
+      mount: name="{{ mountDir }}" src="{{ diskfullpath }}" fstype=xfs state=mounted
+      become_user: root
+      become: yes
+      become_method: sudo
+
+  handlers:                      # 通过脚本添加到fstab
+    - name: ADD TO fstab
+      script: "/home/xiaoxin/ansible/disk/addfstab.sh {{ diskfullpath }}"
+      become: yes
+      become_user: root
+      become_method: sudo
+

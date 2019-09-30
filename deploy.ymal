@@ -1,0 +1,49 @@
+---
+- hosts: app
+  tasks:
+  - name: Stop the service
+    shell: nohup /home/xiaoxin/app/crm-plan-sdk-web/bin/spcserv.sh stop
+  - name:  Please wait while the service is closed.
+    shell: sleep 15
+  - name: Create the code pull directory
+    file:
+      path: /home/xiaoxin/app/develop
+      state: directory
+      mode: '0755'
+  - name:  Except target source
+    file:
+      path: /home/xiaoxin/app/crm-plan-sdk-web/lib
+      state: absent
+  - name:  Delete target source
+    file:
+      path: /home/xiaoxin/app/crm-plan-sdk-web/conf
+      state: absent
+  - name: Delete the log three days ago
+    shell: find /home/xiaoxin/app/develop/ -mtime +3  -delete
+  - name:  Copy the package configuration file
+    copy: src=/var/lib/jenkins/workspace/crm-plan-sdk/crm-plan-sdk-web/target/crm-plan-sdk-web.tar.gz dest=/home/xiaoxin/app/develop
+  - name: A mobile application
+    shell: scp /home/xiaoxin/app/develop/crm-plan-sdk-web.tar.gz /home/xiaoxin/app/
+  - name: Push crm-plan-sdk-web.tar.gz
+    unarchive: src=/home/xiaoxin/app/crm-plan-sdk-web.tar.gz dest=/home/xiaoxin/app copy=no
+  - name: Remove the tag package
+    file:
+      path: /home/xiaoxin/app/crm-plan-sdk-web.tar.gz
+      state: absent
+  - name: Rename the new backup
+    shell: mv /home/xiaoxin/app/develop/crm-plan-sdk-web.tar.gz /home/xiaoxin/app/develop/crm-plan-sdk-web$(date +%Y%m%d%H%M%S).tar.gz
+  - name: Ansible delete file example
+    file:
+      path: /home/xiaoxin/app/develop/crm-plan-sdk-web.tar.gz
+      state: absent
+  - name: Copy start parameter
+    copy: src=/home/xiaoxin/catalina.sh dest=/home/xiaoxin/app/crm-plan-sdk-web/bin/
+  - name: Start the service
+    shell: nohup /home/xiaoxin/app/crm-plan-sdk-web/bin/spcserv.sh start
+  - name: Please wait while the service starts.
+    shell: sleep 25
+  - name: Check whether the port is open
+    shell: netstat -tlpn | grep 8083
+    register: port
+  - debug:
+      msg: "{{ port.stdout }}"

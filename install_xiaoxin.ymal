@@ -1,0 +1,10 @@
+#Using alternate directory locations:
+ 
+- hosts: ss
+  remote_user: xiaoxin
+  tasks: 
+  - name: copy ssh key
+    authorized_key:
+      user: xiaoxin
+      state: present
+      key: "{{ lookup('file', '/home/xiaoxin/.ssh/id_rsa.pub') }}"

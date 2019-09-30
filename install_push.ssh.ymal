@@ -1,0 +1,10 @@
+#Using alternate directory locations: 
+- hosts: ss
+  tasks:
+  - name: copy ssh key
+    authorized_key:
+      user: root
+      key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+  tasks:
+  - name:  copy sudo文件 remote
+    copy: src=/home/xiaoxin/ansible/sudoers dest=/etc/ mode=0755

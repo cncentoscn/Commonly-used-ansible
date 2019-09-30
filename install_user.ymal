@@ -1,0 +1,11 @@
+- hosts: ss
+  vars:
+      password: VEVBnqWxV71EHuNFeO
+  tasks:
+  - name: Generate password
+    shell: python -c 'import crypt; print crypt.crypt("{{ password }}", "$6$random_salt")' 
+    register: genpass
+  - name: Creating user
+    user: 
+      name: xiaoxin
+      password: "{{ password | password_hash('sha512') }}"

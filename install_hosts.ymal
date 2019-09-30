@@ -1,0 +1,4 @@
+- hosts: hosts
+  tasks:
+  - name:  copy hosts文件 remote
+    copy: src=/home/xiaoxin/ansible/hosts dest=/etc/ mode=0755

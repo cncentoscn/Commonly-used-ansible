@@ -1,0 +1,6 @@
+- hosts: hostname
+  tasks:
+  - name:  配置主机名
+    raw: " echo  {{hostname|quote}} > /etc/hostname" 
+  - name:
+    shell: hostname {{hostname|quote}}
